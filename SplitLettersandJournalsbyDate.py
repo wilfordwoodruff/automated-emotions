@@ -48,7 +48,7 @@ def download_and_split_by_date():
             dates = [row.Dates for i in texts]
 
         #When the top part of a page is a continuation of previous day, that section won't have a date attached
-        #This adds the previous day to the list
+        #This adds the previous day to the list to fill that missing entry
         elif len(texts) > len(dates):
             try:
                 dates = [datetime.strptime(date, '%Y-%m-%d') for date in dates]
@@ -161,6 +161,7 @@ def download_and_split_by_date():
                 find_date = 'error2' #Never happened in test cases, hopefully this doesn't happen
         letters_dated.iloc[i] = {'Parent_ID': row['Parent ID'],
             'order_id': row['Order'],
+            'Internal ID': row['Internal ID'],
             'UUID': row['UUID'],
             'text': row['Original Transcript'],
             'Date': find_date
@@ -191,5 +192,5 @@ def download_and_split_by_date():
 
     #Finally, there are a couple consistent errors to fix
     by_date['Date'] = by_date['Date'].replace({'error1':np.nan,"2/23/1934":'1897-08-14'})
-    return(by_date[['UUID','Date','text']])
+    return(by_date[['UUID','Internal ID','Date','text']])
 
