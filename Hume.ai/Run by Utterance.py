@@ -42,7 +42,7 @@ full_date_api['FixedText'] = (full_date_api['text'].str.replace("<.*?>",repl='',
            .str.replace('&amp;','and')
 )
 full_date_api = full_date_api[pd.notna(full_date_api['FixedText'])]
-
+full_date_api.to_csv('12-1 atomized API pull.csv')
 #%%
 
 #full_date_api.to_csv('New Entries to Match with Hume.csv')
@@ -50,7 +50,7 @@ full_date_api = full_date_api[pd.notna(full_date_api['FixedText'])]
 # PART 2: START RUNNING JOBS
 hume_api_key = os.getenv('HUME_WWP_API')
 full_date_api['Job ID'] = ''
-full_date_api.head(n=2).to_csv('All_Saved_Hume_IDs.csv',index=False)
+full_date_api.to_csv('All_Saved_Hume_IDs.csv',index=False)
 client = HumeBatchClient(hume_api_key)
 
 def HumePerPage(text):
@@ -62,7 +62,7 @@ def HumePerPage(text):
 
 # This seemed like the best way to save it. Just adjust the index values if you have to restart 
 START_ROW = 0
-END_ROW = len(full_date_api.head(n=2))
+END_ROW = len(full_date_api)
 for index in range(START_ROW,END_ROW):
     full_date_api = pd.read_csv('All_Saved_Hume_IDs.csv')
     full_date_api.loc[index,'Job ID'] = HumePerPage(full_date_api['FixedText'].iloc[index])
