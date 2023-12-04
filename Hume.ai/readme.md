@@ -1,6 +1,13 @@
 #Running Hume.ai on the Wilford Woodruff Papers
 Welcome! This folder lets you collect new entries, assign them to Hume.ai jobs, then get the results. The results end up in `All_Hume_Results.csv`, which automically updates every time you follow the steps below:
 
+### Note
+On line 27 of `Part 1.py`, it currently reads:
+`full_date_api = full_date_api[pd.notna(full_date_api['FixedText'])].head(n=50)`
+<br>
+
+Since we've hardly run these texts with the new Hume.ai results, at the moment during testing it'll only run the first 50 entries (some of which already have results and get skipped). Feel free to adjust this value as you're testing, the final product will remove this.
+
 
 1. Run `Part 1.py`, which will:
 + Collect the documents API pull from the papers website

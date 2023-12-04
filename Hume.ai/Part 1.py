@@ -24,7 +24,7 @@ full_date_api['FixedText'] = (full_date_api['text'].str.replace("<.*?>",repl='',
            .str.replace('\u25a0','')
            .str.replace('&amp;','and')
 )
-full_date_api = full_date_api[pd.notna(full_date_api['FixedText'])].head(n=6)
+full_date_api = full_date_api[pd.notna(full_date_api['FixedText'])].head(n=50)
 
 
 #I'm hesitant to set an index, because I can't guarantee they'll always
