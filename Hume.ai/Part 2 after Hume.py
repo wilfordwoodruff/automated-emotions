@@ -16,8 +16,11 @@ emotions = ['Admiration', 'Adoration', 'Aesthetic Appreciation',
        'Surprise (negative)', 'Surprise (positive)', 'Sympathy', 'Tiredness',
        'Triumph']
 
+#Get the values that need emotion scores
 full_date_api = pd.read_csv('All_Hume_Results.csv')
 
+#Downloads the job as a ZIP file, extracts the row of emotion scores and returns that into the new text
+#TO-Do: Remove old files to clean up space
 def job_to_results(row):
     client.get_job(row['Job ID']).download_artifacts(f"SectionstoRun/wwp{row['Job ID']}.zip")
     zip_file_path = f'SectionstoRun/wwp{row["Job ID"]}.zip'
@@ -28,9 +31,6 @@ def job_to_results(row):
         zip_ref.extract(member=csv_file_path_within_zip)
 
     results = pd.read_csv(csv_file_path_within_zip)[emotions].values[0].tolist()
-    #Remove file so we aren't cluttered by thousands of documents
-    #os.remove(zip_file_path)
-    #os.remove(f'SectionstoRun/wwp{row["Job ID"]}/text-0-file/csv/1/language.csv')
     return results
 
 #Gets the new, still-empty rows, grabs the Hume values, then updates the original
@@ -40,4 +40,5 @@ try:
     full_date_api.update(new_results)
     full_date_api.to_csv('All_Hume_Results.csv',index=False)
 except:
+    #We get a zipfileerror when Hume isn't ready to return scores.
     print('Error collecting zip files. Hume.ai is probably still running, so try again in a few minutes.')
