@@ -15,10 +15,12 @@ Configuration
 Create a config.txt file with the following format:
 
 api_key=<YOUR_OPENAI_API_KEY>
+
 input_file_path=<PATH_TO_INPUT_CSV_FILE>
+
 column_to_read=<COLUMN_NAME_TO_ANALYZE>
+
 uid_column=<COLUMN_NAME_FOR_UUID>
-output_file_path=<PATH_TO_OUTPUT_CSV_FILE>
 
 Replace placeholders with your OpenAI API key and file paths.
 
