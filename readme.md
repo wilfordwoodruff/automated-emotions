@@ -2,7 +2,9 @@
 We have two different algorithms prepared:
 + Hume.ai, a research program designed specifically for recognizing emotions
 + ChatGPT, a generalized text chatbot with customizable functionality
+
 At the moment, the two functions work independently and are structured slightly differently
+
 + The Hume.ai folder will automatically pull from the API add get emotion scores for new documents
 + The GPT folder can take any document with missing GPT values and automatically get the new scores.
 We should add direct compatability soon, but the best way to use both at the moment would be this:
