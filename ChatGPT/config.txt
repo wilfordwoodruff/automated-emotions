@@ -1,5 +1,4 @@
-api_key=
-input_file_path=recent_wwp_documents.csv
-uid_column=UUID
-column_to_read=Clean_Text
-
+api_key=<YOUR_OPENAI_API_KEY>
+input_file_path=<PATH_TO_INPUT_CSV_FILE>
+column_to_read=<COLUMN_NAME_TO_ANALYZE>
+uid_column=<COLUMN_NAME_FOR_UUID>

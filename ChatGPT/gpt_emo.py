@@ -1,44 +1,29 @@
 import os
-import json
 import openai
 import pandas as pd
 import pkg_resources
 
+# CHECK THE MAIN FUNCTION FOR THE FLOW OF WHAT HAPPENS IN THIS SCRIPT
+
 def parse_data(row):
-    #NEW, assumes it gets a whole row
-    texts = row['text'].split(',')
-    texts = [text.replace('[', '').replace(']','').replace('=',':').split(':') for text in texts]
+    """
+    Description:
+    This function takes a row from the input data and extracts the 'Results' column. It then parses the data into a dictionary format, where keys are emotional categories (Neutral, Enthusiasm, Joy, Hope, Satisfaction, Sad, Anger, Fear), and values are corresponding scores.
+
+    Parameters:
+        row: A pandas DataFrame row containing the 'Results' column.
+    Returns:
+        A dictionary with emotional categories as keys and scores as values.
+    """
+    
+    
+    data = row['Results']
+    texts = data.split(',')
+    texts = [text.replace('[', '').replace(']','').replace('{', '').replace('}', '').replace('=',':').split(':') for text in texts]
     all = {}
     for text in texts:
         all[text[0].strip()] = int(text[1].strip())
-    return dict(sorted(all.items())) #Keeps consistent order
-
-
-    try:
-        results = json.loads(data)
-        results.error = False
-        results.error_text = None
-        results['error'] = ""
-        results['error_text'] = ""
-
-        return results
-
-    except:
-        # create a blank dict and maybe have like an error row that is set to true.
-        results = {
-            "neutral": None,
-            "enthusiasm": None,
-            "joy": None,
-            "hope": None,
-            "satisfaction": None,
-            "sad": None,
-            "anger": None,
-            "fear": None,
-            "error": True,
-            "error_text": data
-        }
-        return results
-        print(data)
+    return all
 
 
 def generate_uuid_list(path_to_output_csv="output.csv"):
@@ -46,7 +31,7 @@ def generate_uuid_list(path_to_output_csv="output.csv"):
     try:
         df = pd.read_csv(path_to_output_csv, encoding="utf-8")
     except:
-        df = pd.DataFrame(columns=['UUID', 'Clean_Text', 'Results'])
+        df = pd.DataFrame(columns=['UUID', 'Clean_Text', 'Results', 'Neutral', 'Enthusiasm', 'Joy', 'Hope', 'Satisfaction', 'Sad', 'Anger', 'Fear'])
         df.to_csv(path_to_output_csv, index=False, encoding="utf-8")
 
     return df['UUID'].values.tolist()  # List of UUIDs
@@ -107,6 +92,7 @@ def analyze_emotions(api_key, text, prompt, i, retry=0):
 
     response = None
     try:
+        print(f"Starting row {i+1}")
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -116,11 +102,11 @@ def analyze_emotions(api_key, text, prompt, i, retry=0):
             temperature=0.0,
             max_tokens=1000,
         )
-        print(f"{i} has been completed")
+        print(f"Row {i+1} has been completed")
     except Exception as e:
         if retry < 5:
             print(f"Retrying Row {i+1}: {retry}")
-            print(f"API request for row '{i}' failed. Reason: {str(e)}")
+            print(f"API request for row '{i+1}' failed. Reason: {str(e)}")
             analyze_emotions(api_key, text, prompt, i, retry+1)
         return f"Error: {str(e)}"
 
@@ -150,9 +136,8 @@ def run_rows(api_key, data, column_to_read, output_file_path):
         emotions_analysis = analyze_emotions(api_key, journal_entry, prompt, i)
         emotions_analysis_list.append(emotions_analysis)
 
-    df['Emotions_Analysis'] = emotions_analysis_list
-    # for row in df.iterrows():
-    #     df = df.drop(df.index[df['Emotional_Analysis'] == "Error"])
+    df['Results'] = emotions_analysis_list
+    df[emo] = df.apply(parse_data, axis=1,result_type='expand')
     return df
 
 
@@ -180,28 +165,17 @@ def main():
 
     # Clean input dataset to the two columns
     data = prep_data([uid_to_read, column_to_read], input_file_path)  # UUIDS AND CLEAN TEXT
-
+    
     # Filters out existing uuid from new request
     for uuid in uuid_list:
         data = data.drop(data.index[data['UUID'] == uuid])
-
+    
+    # Run the data through GPT
     data = run_rows(api_key, data, column_to_read, output_file_path)
 
-    #NEW
-    data[['Anger','Enthusiasm','Fear','Hope','Joy','Neutral','Sad','Satisfaction']] = data.apply(parse_data, axis=1, result_type='expand')
 
-
-    # THIS NEEDS MAJOR HELP
-    for i, row in data.iterrows():
-        print(row)
-        parsed_dict = parse_data(row['Emotions_Analysis']) # this is a parsed dict, that will have all the new data for each column but that doesnt exist yet, need to make sure these exist and then stick it on the correct index, then it will work.
-        #data = data.concat(pd.DataFrame(parsed_dict, index=[i]), ignore_index=True)
-        if parsed_dict:
-            # Convert the parsed_dict to a DataFrame and concat it to the original data
-            parsed_df = pd.DataFrame(parsed_dict, index=[i])
-            data = pd.concat([data, parsed_df], axis=1)
     data.to_csv('output.csv', mode='a+', encoding="utf-8", index=False, header=False)
-    print("done")
+    print("Done")
     os.chdir(current_directory)
 
 

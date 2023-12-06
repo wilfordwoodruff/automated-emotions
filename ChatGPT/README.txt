@@ -18,7 +18,6 @@ api_key=<YOUR_OPENAI_API_KEY>
 input_file_path=<PATH_TO_INPUT_CSV_FILE>
 column_to_read=<COLUMN_NAME_TO_ANALYZE>
 uid_column=<COLUMN_NAME_FOR_UUID>
-output_file_path=<PATH_TO_OUTPUT_CSV_FILE>
 
 Replace placeholders with your OpenAI API key and file paths.
 
@@ -29,7 +28,7 @@ Usage
 -------------------------------------------------------------------------------
 Run the script using the following command in Windows PowerShell (or whatever shell you are using):
 
-python emotion_analysis.py
+python gpt_emo.py
 
 The script will process the data, analyze emotions, and append the results to the specified output CSV file.
 
